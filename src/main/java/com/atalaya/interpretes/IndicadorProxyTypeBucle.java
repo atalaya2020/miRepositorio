@@ -22,6 +22,7 @@ public class IndicadorProxyTypeBucle extends IndicadorProxyType implements IIndi
 	 */
 	public static IndicadorProxyTypeBucle getInstance()
 	{
+		//metemos una linea nueva aquí
 		//Si el atributo instance no tiene valor significa que no existe ninguna instancia de la clase
 		if (instance==null)
 		{
@@ -137,6 +138,7 @@ public class IndicadorProxyTypeBucle extends IndicadorProxyType implements IIndi
 									
 									if (indHijo.noejecutado())
 									{
+										//linea nueva aqui
 										//Ejecuto el indicador
 //										if (Ejecutable.numHilos<=Ejecutable.minHilos)
 										if (Ejecutable.minHilos<=Ejecutable.minHilos)
