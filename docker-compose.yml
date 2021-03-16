@@ -1,0 +1,95 @@
+version: '3'
+
+services:
+
+  atalayadb:   
+    image: mongo:latest
+    ports:
+        - 27017:27017
+    volumes:
+      - db_atalaya:/var/lib/atalaya
+    container_name: 'atalayadb'
+    networks:
+        - web
+  
+  alumnadodb: 
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: 'atalaya'
+    ports:
+        - 3306:3306
+    volumes: 
+      - db_alumnado:/var/lib/alumnado
+    container_name: 'alumnadodb'
+    networks:
+       - web
+  
+  atalaya:
+    image: atalaya:v1
+    depends_on: 
+      - atalayadb 
+    ports: 
+      - 8082:8080
+    volumes: 
+      - data_file:/var/lib/sistemaFicheros
+    environment:
+      - SERVICE_PORTS=8082
+    container_name: 'atalaya'
+    networks: 
+     - web
+     
+  wsValoracion: 
+    #image: wsvaloracion:sleep
+    image: wsvaloracion
+    ports:
+        - 8083:8080
+    container_name: 'wsValoracion'
+    networks:
+        - web
+  proxy:
+    image: myhaproxy
+    depends_on:
+      - atalaya
+      - atalayadb
+      - wsValoracion
+      - alumnadodb
+    environment:
+      - BALANCE=leastconn
+    ports:
+      - 80:80
+    container_name: 'proxy'
+    networks:
+      - web
+      
+  redis:
+    image: redis
+    hostname: redis
+    ports:
+      - 6379:6379
+    container_name: 'redis'
+    networks:
+      - web
+      
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: always
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - web
+    
+volumes:
+  db_alumnado:
+  db_atalaya:
+  data_file:
+  
+
+networks:
+  web:
+#    driver: overlay  //Abrir para swarm
